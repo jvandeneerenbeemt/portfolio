@@ -439,7 +439,8 @@ infowindow = new google.maps.InfoWindow({
         const[lat, lng] = location.COORDINATES;
 
         var icon = {
-            url: "https://jvandeneerenbeemt.github.io/portfolio/marker-icon-blue.png"
+            url: "https://jvandeneerenbeemt.github.io/portfolio/blue-icon.png",
+			scaledSize: new google.maps.Size(45, 45),
 
         };
 
@@ -455,82 +456,113 @@ infowindow = new google.maps.InfoWindow({
 		
 		bounds.extend(marker.position);
 
-        marker.addListener("mouseover", () => {
+    
 		
 		
-		  
-		  let content = `<b style="font-size: 16px;">${location['name']}</b></br></br><div class="infowindow-content">`;
-
-         
-          if (location.value) {
-            content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
-          }
-          if (location.year) {
-            content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
-          }
-          if (location.role) {
-            content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
-          }
-          if (location.description) {
-            content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
-          }
-
-          content += `</div>`;
-		  
-		  
-		  infowindow.setContent(content);
-          map.panTo(marker.getPosition());
-            infowindow.open(map, marker);
-			
-        });
+		google.maps.event.addListener(map, "click", function(event) {
+			infowindow.close();
+		});
 		
-		marker.addListener('mouseout', function() {
-            //infowindow.close();
-          });
 		  
 		  marker.addListener("click", () => {
-			let content = `<b style="font-size: 14px;">${location['name']}</b></br></br><div class="infowindow-content">`;
-
-         
-          if (location.value) {
-            content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
-          }
-          if (location.year) {
-            content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
-          }
-          if (location.role) {
-            content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
-          }
-          if (location.description) {
-            content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
-          }
-
-          content += `</div>`;
+			
 		  
 		  
-		  infowindow.setContent(content);
+		  
 			
 			if (window.innerWidth <= 768) { // Check if it's mobile view
+			
+				let content = `<b style="font-size: 14px;">${location['name']}</b></br></br><div class="infowindow-content">`;
+
+			 
+				  if (location.value) {
+					content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
+				  }
+				  if (location.year) {
+					content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
+				  }
+				  if (location.role) {
+					content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
+				  }
+				  if (location.description) {
+					content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
+				  }
+
+				  content += `</div>`;
+				
+				infowindow.setContent(content);
               
-              map.panTo(marker.getPosition());
+				map.panTo(marker.getPosition());
 
               
-              map.panBy(0, -200);
-            }
+				map.panBy(0, -225);
+            }else{
+				 let content = `<b style="font-size: 16px;">${location['name']}</b></br></br><div class="infowindow-content">`;
+
+         
+				  if (location.value) {
+					content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
+				  }
+				  if (location.year) {
+					content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
+				  }
+				  if (location.role) {
+					content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
+				  }
+				  if (location.description) {
+					content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
+				  }
+
+				  content += `</div>`;
+				infowindow.setContent(content);
+					
+			}
 			infowindow.open(map, marker);
 		  });
 
         return marker;
     });
+	
+	const color = "#0000ff";
+
+	const svg = window.btoa(`
+	<svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+	  <circle cx="120" cy="120" opacity=".6" r="70" />
+	  <circle cx="120" cy="120" opacity=".3" r="90" />
+	  <circle cx="120" cy="120" opacity=".2" r="110" />
+	  <circle cx="120" cy="120" opacity=".1" r="130" />
+	</svg>`);
+
+
+	let renderer = {
+		render: ({ count, position }) =>
+			new google.maps.Marker({
+				label: {
+					text: String(count),
+					color: "white",
+					fontSize: "10px",
+				},
+				position,
+				icon: {
+					url: `data:image/svg+xml;base64,${svg}`,
+					scaledSize: new google.maps.Size(45, 45),
+				},
+
+				zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+			}
+		),
+	};
+
 
     const markerCluster = new markerClusterer.MarkerClusterer({
-        map,
-        markers
-    });
+        map: map,
+        markers: markers,
+		renderer: renderer
+	});
 
 
 		
- map.fitBounds(bounds);
+	map.fitBounds(bounds);
 
         
     }
