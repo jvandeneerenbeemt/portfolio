@@ -493,7 +493,7 @@ infowindow = new google.maps.InfoWindow({
 				infowindow.setContent(content);
               
 				
-
+				map.panTo(marker.getPosition());
               
 				map.panBy(0, -225);
             }else{
@@ -515,9 +515,10 @@ infowindow = new google.maps.InfoWindow({
 
 				  content += `</div>`;
 				infowindow.setContent(content);
+				map.panTo(marker.getPosition());
 					
 			}
-			  map.panTo(marker.getPosition());
+			  
 			infowindow.open(map, marker);
 		  });
 
