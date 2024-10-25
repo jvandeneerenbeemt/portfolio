@@ -812,6 +812,7 @@ infowindow = new google.maps.InfoWindow({
 	  collapsedOverlay.addEventListener('click', function() {
 		collapsedOverlay.classList.remove('show');  
 		infoOverlay.style.display = 'flex';  
+		  infowindow.close();
 		setTimeout(function() {
 		  infoOverlay.classList.remove('slide-out');
 		  infoOverlay.classList.add('slide-in');  
