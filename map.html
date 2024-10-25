@@ -36,6 +36,127 @@
         
       }
 	  
+	  
+    #info-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 450px;
+      height: 200px;
+      display: flex;
+      background-color: #000;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      transition: all 0.5s ease;
+      z-index: 10;
+      overflow: hidden; 
+    }
+	
+    #info-overlay.slide-out {
+      transform: translate(-150%, -50%);
+      opacity: 0;
+    }
+
+    #info-overlay.slide-in {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+
+    .left-container {
+      flex: 1;
+     /* background: url('https://via.placeholder.com/150') no-repeat center center; */
+      background-size: cover;
+      border-radius: 8px 0 0 8px;
+    }
+
+    .right-container {
+      flex: 1;
+     /* padding: 20px; */
+      overflow-y: auto;
+      max-height: 100%;
+	  scrollbar-width: thin;
+	  scrollbar-color: #000 #000000;
+    }
+
+    .right-container h3 {
+      
+    }
+	
+	.right-container p {
+			margin-top: 0;
+			font-size:16px;
+		}
+
+    .right-container ul {
+      padding: 0;
+      list-style-type: none;
+	  padding: 5px;
+    }
+
+    .right-container ul li {
+      cursor: pointer;
+      padding: 5px;
+      margin: 5px 0;
+     /* background: #f2f2f2; */
+	 color: #fff;
+      border-radius: 5px;
+	  text-decoration: underline;
+	  font-size: 14px;
+    }
+
+    .right-container ul li:hover {
+     /* background: #e0e0e0; */
+    }
+
+    #close-btn {
+        position: absolute;
+    /* top: 5px; */
+    right: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    /* width: 20px; */
+    /* height: 7px; */
+    line-height: 24px;
+    text-align: center;
+    z-index: 15;
+    }
+
+    
+    #collapsed-overlay {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      width: 75px;
+      height: 60px;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 0px;
+      display: none;
+      z-index: 10;
+      cursor: pointer;
+      opacity: 0;  
+      transition: all 0.5s ease;
+	  
+
+    }
+
+    #collapsed-overlay img {
+      width: 100%;
+      height: 100%;
+    }
+
+    #collapsed-overlay.show {
+      display: block;
+      opacity: 1;
+    }
+	  
 	   /* Media query for mobile view */
       @media (max-width: 768px) {
         .infowindow-content {
@@ -55,6 +176,30 @@
           margin-bottom: 10px;
 		  padding-left: 0px;
         }
+		
+		#info-overlay {
+		  
+		  width: 325px;
+		  
+		}
+		#close-btn{
+			right: 0px;
+		}
+		
+		#collapsed-overlay {
+      
+		  width: 60px;
+		  height: 55px;
+		  
+
+		}
+		
+		.right-container p {
+		
+			font-size: 14px;
+		}
+		
+		
       }
         
     </style>
@@ -65,6 +210,19 @@
 
 <div id="map"></div>
 
+<div id="info-overlay">
+  <div class="left-container"><img style="width: 100%;height: 100%;" src="https://jvandeneerenbeemt.github.io/portfolio/JeffHeadshotPro.png" alt="large image"></div>
+  <div class="right-container">
+    <button id="close-btn">X</button>
+    <p style="color:#fff;padding: 10px;">Welcome to my project portfolio. Click on any pin for more information. Or, scroll down for my project list.<br>-Jeff Vanden Eerenbeemt <br><br>Projects (most recent listed first)</p>
+    <ul id="marker-list"></ul> 
+  </div>
+</div>
+
+<div id="collapsed-overlay">
+  <img src="https://jvandeneerenbeemt.github.io/portfolio/JeffHeadshotPro.png" alt="Small Icon">
+</div>
+
 
 
 <script>
@@ -72,7 +230,7 @@
     let infoWindow;
     let markers = [];
     let markerCluster;
-    
+    let markersList = []
     let service;
 	
 	var projLocations = [{
@@ -434,7 +592,7 @@ infowindow = new google.maps.InfoWindow({
 	
 	const bounds = new google.maps.LatLngBounds();
 	
-	markers = projLocations.map((location) => {
+	markers = projLocations.map((location, index) => {
 
         const[lat, lng] = location.COORDINATES;
 
@@ -457,7 +615,7 @@ infowindow = new google.maps.InfoWindow({
 		bounds.extend(marker.position);
 
     
-		
+		markersList.push(marker)
 		
 		google.maps.event.addListener(map, "click", function(event) {
 			infowindow.close();
@@ -521,7 +679,70 @@ infowindow = new google.maps.InfoWindow({
 			  
 			infowindow.open(map, marker);
 		  });
+		  
+		  const listItem = document.createElement('li');
+		  listItem.textContent = location.name;
+		  listItem.setAttribute('data-index', index); 
 
+		  
+		  listItem.addEventListener('click', () => {
+			const markerObj = markersList[index];
+			if (window.innerWidth <= 768) { // Check if it's mobile view
+			
+				let content = `<b style="font-size: 14px;">${location['name']}</b></br></br><div class="infowindow-content">`;
+
+			 
+				  if (location.value) {
+					content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
+				  }
+				  if (location.year) {
+					content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
+				  }
+				  if (location.role) {
+					content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
+				  }
+				  if (location.description) {
+					content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
+				  }
+
+				  content += `</div>`;
+				
+				infowindow.setContent(content);
+              
+				map.setZoom(11);
+				map.panTo(markerObj.getPosition());
+              
+				map.panBy(0, -225);
+            }else{
+				 let content = `<b style="font-size: 16px;">${location['name']}</b></br></br><div class="infowindow-content">`;
+
+         
+				  if (location.value) {
+					content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
+				  }
+				  if (location.year) {
+					content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
+				  }
+				  if (location.role) {
+					content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
+				  }
+				  if (location.description) {
+					content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
+				  }
+
+				  content += `</div>`;
+				infowindow.setContent(content);
+				map.setZoom(11);
+				map.panTo(markerObj.getPosition());
+					
+			}
+			infowindow.open(map, markerObj);
+			closeOverlay(); 
+		  });
+
+		  
+		  document.getElementById('marker-list').appendChild(listItem);
+		
         return marker;
     });
 	
@@ -568,6 +789,33 @@ infowindow = new google.maps.InfoWindow({
 
         
     }
+	
+	const infoOverlay = document.getElementById('info-overlay');
+	  const collapsedOverlay = document.getElementById('collapsed-overlay');
+	  const closeBtn = document.getElementById('close-btn');
+
+	  
+	  function closeOverlay() {
+		infoOverlay.classList.remove('slide-in');
+		infoOverlay.classList.add('slide-out');  
+		setTimeout(function() {
+		  infoOverlay.style.display = 'none';  
+		  collapsedOverlay.classList.add('show');  
+		}, 200); 
+	  }
+
+	  
+	  closeBtn.addEventListener('click', closeOverlay);
+
+	  
+	  collapsedOverlay.addEventListener('click', function() {
+		collapsedOverlay.classList.remove('show');  
+		infoOverlay.style.display = 'flex';  
+		setTimeout(function() {
+		  infoOverlay.classList.remove('slide-out');
+		  infoOverlay.classList.add('slide-in');  
+		}, 10);  
+	  });
 
    
 
