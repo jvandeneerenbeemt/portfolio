@@ -594,7 +594,7 @@
 
 infowindow = new google.maps.InfoWindow({
         content: "",
-        disableAutoPan: true,
+        disableAutoPan: false,
 
     });
 	
@@ -661,7 +661,7 @@ infowindow = new google.maps.InfoWindow({
 				
 				map.panTo(marker.getPosition());
               
-				map.panBy(0, -225);
+				//map.panBy(0, -225);
             }else{
 				 let content = `<b style="font-size: 16px;">${location['name']}</b></br></br><div class="infowindow-content">`;
 
@@ -720,7 +720,7 @@ infowindow = new google.maps.InfoWindow({
 				map.setZoom(11);
 				map.panTo(markerObj.getPosition());
               
-				map.panBy(0, -225);
+				//map.panBy(0, -225);
             }else{
 				 let content = `<b style="font-size: 16px;">${location['name']}</b></br></br><div class="infowindow-content">`;
 
