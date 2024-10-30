@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Map</title>
+    <style>
+         #map {
+      height: 100%;
+    }
+    
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+	
+	.infowindow-content {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        display: table;
+      }
+      .infowindow-content .row {
+        display: table-row;
+      }
+      .infowindow-content .row .label {
+        font-weight: bold;
+        padding-right: 10px;
+        display: table-cell;
+        white-space: nowrap;
+      }
+      .infowindow-content .row .value {
+        display: table-cell;
+        
+      }
+	  
+	  
+    #info-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 675px;
+    height: 275px;
+      display: flex;
+      background-color: #000;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      transition: all 0.5s ease;
+      z-index: 10;
+      overflow: hidden; 
+    }
+	
+    #info-overlay.slide-out {
+      transform: translate(-150%, -50%);
+      opacity: 0;
+    }
+
+    #info-overlay.slide-in {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+
+    .left-container {
+      flex: 1;
+     /* background: url('https://via.placeholder.com/150') no-repeat center center; */
+      background-size: cover;
+      border-radius: 8px 0 0 8px;
+    }
+
+    .right-container {
+      flex: 1;
+     /* padding: 20px; */
+      overflow-y: auto;
+      max-height: 100%;
+	  scrollbar-width: thin;
+	  scrollbar-color: #000 #000000;
+    }
+
+    .right-container h3 {
+      
+    }
+	
+	.right-container p {
+			margin-top: 10px;
+			font-size:16px;
+			margin-bottom: -15px;
+		}
+
+    .right-container ul {
+      padding: 0;
+      list-style-type: none;
+	  padding: 5px;
+    }
+
+    .right-container ul li {
+      cursor: pointer;
+      padding: 5px;
+      margin: 5px 0;
+     /* background: #f2f2f2; */
+	 color: #fff;
+      border-radius: 5px;
+	  text-decoration: underline;
+	  font-size: 16px;
+    }
+
+    .right-container ul li:hover {
+     /* background: #e0e0e0; */
+    }
+
+    #close-btn {
+        position: absolute;
+    /* top: 5px; */
+    right: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    /* width: 20px; */
+    /* height: 7px; */
+    line-height: 24px;
+    text-align: center;
+    z-index: 15;
+    }
+
+    
+    #collapsed-overlay {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      width: 75px;
+      height: 60px;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 0px;
+      display: none;
+      z-index: 10;
+      cursor: pointer;
+      opacity: 0;  
+      transition: all 0.5s ease;
+	  
+
+    }
+
+    #collapsed-overlay img {
+      width: 100%;
+      height: 100%;
+    }
+
+    #collapsed-overlay.show {
+      display: block;
+      opacity: 1;
+    }
+	  
+	   /* Media query for mobile view */
+      @media (max-width: 768px) {
+        .infowindow-content {
+          display: block; 
+		  max-height: 300px;
+        }
+        .infowindow-content .row {
+          display: block;
+        }
+        .infowindow-content .row .label {
+          display: block;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        .infowindow-content .row .value {
+          display: block;
+          margin-bottom: 10px;
+		  padding-left: 0px;
+        }
+		
+		#info-overlay {
+		  
+		         width: 80%;
+        		height: 20%;
+		  
+		}
+		#close-btn{
+			right: 0px;
+			font-size: 14px;
+		}
+		
+		#collapsed-overlay {
+      
+		  width: 65px;
+		  height: 50px;
+		  
+
+		}
+		
+		.right-container p {
+			margin-top: 10px;
+			font-size: 12px;
+		}
+
+	      .right-container ul li {
+		      font-size: 12px;
+	      }
+		
+		
+      }
+        
+    </style>
+</head>
+<body>
+
+
+
+<div id="map"></div>
+
+<div id="info-overlay">
+  <div class="left-container"><img style="width: 100%;height: 100%;" src="https://jvandeneerenbeemt.github.io/portfolio/JeffHeadshotPro.png" alt="large image"></div>
+  <div class="right-container">
+    <button id="close-btn">X</button>
+    <p style="color:#fff;padding: 10px;">Welcome! I created this map to showcase my project portfolio. Each pin on the map represents one of my projects. Click on any pin for more information. Or, scroll down and click on any project link from the list below.<br>-Jeff Vanden Eerenbeemt <br><br><br>Projects (most recent listed first):</p>
+    <ul id="marker-list"></ul> 
+  </div>
+</div>
+
+<div id="collapsed-overlay">
+  <img src="https://jvandeneerenbeemt.github.io/portfolio/JeffHeadshotPro.png" alt="Small Icon">
+</div>
+
+
+
+<script>
+    let map;
+    let infoWindow;
+    let markers = [];
+    let markerCluster;
+    let markersList = []
+    let service;
+	
+	var projLocations = [{
+        "name": "Beatton River Bridge Deck Replacement Project, Alaska Highway",
+        "value": "TBD",
+        "year": "2024-2025",
+        "role": "Senior Project Manager",
+        "description": "The exposed concrete deck on the slab-on steel girder Beatton River Bridge is reaching the end of its service life. The proposed deck replacement project is intended to extend the service life of the bridge by at least 40 years. The project includes the deck replacement, new approach slabs, modifications to the abutment walls, grading, and drainage improvements.",
+        
+        "COORDINATES": [57.082009, -122.588614]
+    },
+	{
+        "name": "Lower Liard Bridge Rehabilitation Project, Alaska Highway",
+        "value": "$3M",
+        "year": "2024",
+        "role": "Senior Project Manager",
+        "description": "The project includes rehabilitation of the bridge deck and other miscellaneous bridge repairs.",
+        
+        "COORDINATES": [59.4136738074401, -126.09520542173559]
+    },
+
+	{
+        "name": "Yonge North Subway Extension Project",
+        "value": "TBD",
+        "year": "2024",
+        "role": "Advisor",
+        "description": "Metrolinx is seeking to transform the commute in the York Region, North York and beyond, by extending TTC’s Line 1 services north from Finch Station to Vaughan, Markham and Richmond Hill. The subway extension includes a tunneling segment that runs alongside the existing CN Railway Right-of-Way to a portal structure just south of Langstaff Road in North Toronto. Expertise was required in navigating intricate operational and commercial constraints applicable to design and construction involving an active rail corridor on CN Rail Right-of-Way.",
+        
+        "COORDINATES": [43.836277, -79.421527]
+    },
+	{
+        "name": "Ross Street Underpass Project",
+        "value": "$20.9M",
+        "year": "2013-2023",
+        "role": "Project Manager",
+        "description": "The Ross Street Underpass Project is a two-lane underpass passing beneath the CP Railway in Salmon Arm’s downtown core. The Project included a grade separation structure, rail design, modifications to five intersections within the municipality, and significant utility and drainage upgrades per MMCD Platinum.",
+        
+        "COORDINATES": [50.703327, -119.282657]
+    },
+	{
+        "name": "Colony Farm Bridge Deck Rehabilitation Project",
+        "value": "$3M",
+        "year": "2018",
+        "role": "Senior Project Manager",
+        "description": "",
+        
+        "COORDINATES": [49.236893, -122.820650]
+    },
+	{
+        "name": "Port Mann Highway One Improvement Project",
+        "value": "$3.3B",
+        "year": "2010 – 2019",
+        "role": "Deputy Engineering Manager, Senior Project Manager, Project Engineer, Field Engineer",
+        "description": "The PMH1 Project was at its time, the largest transportation infrastructure project in British Columbia’s history. The Project included the construction of a new 10 Lane Port Mann Bridge, 37km of Highway widening from Vancouver to Langley, including the replacement of 9 highway interchanges and 30km of new HOV lane.",
+        
+        "COORDINATES": [49.21999064084309, -122.81322615563673]
+    },
+	{
+        "name": "Granville and Garden City Intersection Improvements",
+        "value": "<1M",
+        "year": "",
+        "role": "Assistant Project Manager",
+        "description": "The City of Richmond implemented several small civil infrastructure Projects for which Jeff provided Project Management Services. These included intersection upgrades, multi-use pathways, and cyclist facilities.",
+        
+        "COORDINATES": [49.16285547997937, -123.12543406178543]
+    },
+	{
+        "name": "Westminster and Gilley Intersection Improvements",
+        "value": "<1M",
+        "year": "",
+        "role": "Project Manager",
+        "description": "The City of Richmond implemented several small civil infrastructure Projects for which Jeff provided Project Management Services. These included intersection upgrades, multi-use pathways, and cyclist facilities.",
+        
+        "COORDINATES": [49.17709415546799, -122.96856628369633]
+    },
+	{
+        "name": "23rd Avenue Interchange Project",
+        "value": "$253.7M",
+        "year": "2008-2011",
+        "role": "Superintendent, Field Engineer, Traffic Manager",
+        "description": "The 23rd Avenue Interchange in Edmonton was constructed to better serve daily commute traffic, airport traffic, local business traffic, and pedestrian/cyclist traffic in one of Edmonton’s busiest intersections. The Project included five bridge structures, including two over the CP Railway, and significant embankment construction and utility relocations.",
+        
+        "COORDINATES": [53.45404927899394, -113.49243709132938]
+    },
+	{
+        "name": "Roberts Bank Rail Corridor Program Combo Project",
+        "value": "$170M",
+        "year": "2011-2014",
+        "role": "Project Engineer",
+        "description": "As part of the Roberts Bank Rail Corridor Program, the Combo Project delivered new grade separations at 192nd Street, 196th Street, and 54th Avenue in the City of Surrey. The scope included infrastructure upgrades within the Township and City of Langley, and the Ministry of Transportation’s Highway 10.",
+        
+        "COORDINATES": [49.097241184091075, -122.69111670847292]
+    },
+	{
+        "name": "Carlson Creek Fish Habitat Restoration",
+        "value": "<$1M",
+        "year": "2018",
+        "role": "Senior Project Manager",
+        "description": "Salmon Habitat Restoration was required along a section of Carlson Creek in the City of Surrey, at the Highway 99 and 16th Avenue Interchange. Jeff led this project through design, tender and construction, on schedule and budget.",
+        
+        "COORDINATES": [49.03171664704538, -122.76949222223504]
+    },
+	{
+        "name": "Highway 29 Realignment for Site C Dam",
+        "value": "",
+        "year": "2011-2012",
+        "role": "Assistant Project Manager",
+        "description": "",
+        
+        "COORDINATES": [56.24194065257369, -121.39837552174369]
+    },
+	{
+        "name": "Fargo-Moorhead Area Diversion Project",
+        "value": "TBD",
+        "year": "2020",
+        "role": "Advisor",
+        "description": "",
+        
+        "COORDINATES": [46.87386929325135, -96.77640012844063]
+    },
+	{
+        "name": "South Surrey Park and Ride",
+        "value": "",
+        "year": "2012",
+        "role": "Assistant Project Manager",
+        "description": "",
+        
+        "COORDINATES": [49.07224350065174, -122.82179579083031]
+    },
+	{
+        "name": "Fraser Highway Bridge",
+        "value": "",
+        "year": "2012",
+        "role": "Assistant Project Manager",
+        "description": "",
+        
+        "COORDINATES": [49.100577568098274, -122.64149721511238]
+    },
+	{
+        "name": "Capilano University Roadworks Program",
+        "value": "<5M",
+        "year": "2012-2013",
+        "role": "Project Manager",
+        "description": "",
+        
+        "COORDINATES": [49.31722467222733, -123.020778133669]
+    },
+	{
+        "name": "Marine Gateway Development TransLink Representation",
+        "value": "",
+        "year": "",
+        "role": "Assistant Project Manager",
+        "description": "",
+        
+        "COORDINATES": [49.20943404380168, -123.1172282728972]
+    },
+	{
+        "name": "No. 1 Road and Moncton Street Intersection Improvements",
+        "value": "",
+        "year": "",
+        "role": "Assistant Project Manager",
+        "description": "The City of Richmond implemented several small civil infrastructure Projects for which Jeff provided Project Management Services. These included intersection upgrades, multi-use pathways, and cyclist facilities.",
+        
+        "COORDINATES": [49.12533939196023, -123.1811878027126]
+    },
+	{
+        "name": "UBC Bus Loop TransLink Representation",
+        "value": "",
+        "year": "",
+        "role": "Assistant Project Manager",
+        "description": "",
+        
+        "COORDINATES": [49.26576700994375, -123.24876563499517]
+    }
+	
+	];
+
+
+
+     function initMap() {
+	 
+	   
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 49.236893, lng: -122.820650 }, 
+            zoom: 10,
+            styles: [
+    {
+        "featureType": "all",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "saturation": 36
+            },
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 40
+            }
+        ]
+    },
+    {
+        "featureType": "all",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 16
+            }
+        ]
+    },
+    {
+        "featureType": "all",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 20
+            }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 17
+            },
+            {
+                "weight": 1.2
+            }
+        ]
+    },
+    {
+        "featureType": "landscape",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 20
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 21
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 17
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 29
+            },
+            {
+                "weight": 0.2
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 18
+            }
+        ]
+    },
+    {
+        "featureType": "road.local",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 16
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 19
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#000000"
+            },
+            {
+                "lightness": 17
+            }
+        ]
+    }
+]
+        });
+
+infowindow = new google.maps.InfoWindow({
+        content: "",
+        disableAutoPan: false,
+
+    });
+	
+	const bounds = new google.maps.LatLngBounds();
+	
+	markers = projLocations.map((location, index) => {
+
+        const[lat, lng] = location.COORDINATES;
+
+        var icon = {
+            url: "https://jvandeneerenbeemt.github.io/portfolio/blue-icon-2.png",
+			scaledSize: new google.maps.Size(45, 45),
+
+        };
+
+        var marker = new google.maps.Marker({
+            icon: icon,
+            position: {
+                lat,
+                lng
+            },
+            map: map,
+            
+        });
+		
+		bounds.extend(marker.position);
+
+    
+		markersList.push(marker)
+		
+		google.maps.event.addListener(map, "click", function(event) {
+			infowindow.close();
+		});
+		
+		  
+		  marker.addListener("click", () => {
+			
+		  
+		  
+		  
+			
+			if (window.innerWidth <= 768) { // Check if it's mobile view
+			
+				let content = `<b style="font-size: 14px;">${location['name']}</b></br></br><div class="infowindow-content">`;
+
+			 
+				  if (location.value) {
+					content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
+				  }
+				  if (location.year) {
+					content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
+				  }
+				  if (location.role) {
+					content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
+				  }
+				  if (location.description) {
+					content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
+				  }
+
+				  content += `</div>`;
+				
+				infowindow.setContent(content);
+              
+				
+				map.panTo(marker.getPosition());
+              
+				//map.panBy(0, -225);
+            }else{
+				 let content = `<b style="font-size: 16px;">${location['name']}</b></br></br><div class="infowindow-content">`;
+
+         
+				  if (location.value) {
+					content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
+				  }
+				  if (location.year) {
+					content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
+				  }
+				  if (location.role) {
+					content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
+				  }
+				  if (location.description) {
+					content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
+				  }
+
+				  content += `</div>`;
+				infowindow.setContent(content);
+				map.panTo(marker.getPosition());
+					
+			}
+			  
+			infowindow.open(map, marker);
+		  });
+		  
+		  const listItem = document.createElement('li');
+		  listItem.textContent = location.name;
+		  listItem.setAttribute('data-index', index); 
+
+		  
+		  listItem.addEventListener('click', () => {
+			const markerObj = markersList[index];
+			if (window.innerWidth <= 768) { // Check if it's mobile view
+			
+				let content = `<b style="font-size: 14px;">${location['name']}</b></br></br><div class="infowindow-content">`;
+
+			 
+				  if (location.value) {
+					content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
+				  }
+				  if (location.year) {
+					content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
+				  }
+				  if (location.role) {
+					content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
+				  }
+				  if (location.description) {
+					content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
+				  }
+
+				  content += `</div>`;
+				
+				infowindow.setContent(content);
+              
+				map.setZoom(11);
+				map.panTo(markerObj.getPosition());
+              
+				//map.panBy(0, -225);
+            }else{
+				 let content = `<b style="font-size: 16px;">${location['name']}</b></br></br><div class="infowindow-content">`;
+
+         
+				  if (location.value) {
+					content += `<div class="row"><div class="label">Value:</div><div class="value">${location.value}</div></div>`;
+				  }
+				  if (location.year) {
+					content += `<div class="row"><div class="label">Year:</div><div class="value">${location.year}</div></div>`;
+				  }
+				  if (location.role) {
+					content += `<div class="row"><div class="label">Role:</div><div class="value">${location.role}</div></div>`;
+				  }
+				  if (location.description) {
+					content += `<div class="row"><div class="label">Description:</div><div class="value">${location.description}</div></div>`;
+				  }
+
+				  content += `</div>`;
+				infowindow.setContent(content);
+				map.setZoom(11);
+				map.panTo(markerObj.getPosition());
+					
+			}
+			infowindow.open(map, markerObj);
+			closeOverlay(); 
+		  });
+
+		  
+		  document.getElementById('marker-list').appendChild(listItem);
+		
+        return marker;
+    });
+	
+	const color = "#0000ff";
+
+	const svg = window.btoa(`
+	<svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+	  <circle cx="120" cy="120" opacity=".6" r="70" />
+	  <circle cx="120" cy="120" opacity=".3" r="90" />
+	  <circle cx="120" cy="120" opacity=".2" r="110" />
+	  <circle cx="120" cy="120" opacity=".1" r="130" />
+	</svg>`);
+
+
+	let renderer = {
+		render: ({ count, position }) =>
+			new google.maps.Marker({
+				label: {
+					text: String(count),
+					color: "white",
+					fontSize: "10px",
+				},
+				position,
+				icon: {
+					url: `data:image/svg+xml;base64,${svg}`,
+					scaledSize: new google.maps.Size(45, 45),
+				},
+
+				zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+			}
+		),
+	};
+
+
+    const markerCluster = new markerClusterer.MarkerClusterer({
+        map: map,
+        markers: markers,
+		renderer: renderer
+	});
+
+
+		
+	map.fitBounds(bounds);
+
+        
+    }
+	
+	const infoOverlay = document.getElementById('info-overlay');
+	  const collapsedOverlay = document.getElementById('collapsed-overlay');
+	  const closeBtn = document.getElementById('close-btn');
+
+	  
+	  function closeOverlay() {
+		infoOverlay.classList.remove('slide-in');
+		infoOverlay.classList.add('slide-out');  
+		setTimeout(function() {
+		  infoOverlay.style.display = 'none';  
+		  collapsedOverlay.classList.add('show');  
+		}, 200); 
+	  }
+
+	  
+	  closeBtn.addEventListener('click', closeOverlay);
+
+	  
+	  collapsedOverlay.addEventListener('click', function() {
+		collapsedOverlay.classList.remove('show');  
+		infoOverlay.style.display = 'flex';  
+		  infowindow.close();
+		setTimeout(function() {
+		  infoOverlay.classList.remove('slide-out');
+		  infoOverlay.classList.add('slide-in');  
+		}, 10);  
+	  });
+
+   
+
+    
+    </script>
+	<script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJc9IOoxvubyK8UEDwHU85RrryhF_zV4g&callback=initMap"></script>
+</body>
+</html>
